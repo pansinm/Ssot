@@ -7,18 +7,18 @@ class CTopLabel : public QLabel
 {
     Q_OBJECT
 public:
-    explicit CTopLabel(int id,QWidget *parent = 0);
+    explicit CTopLabel(QWidget *parent = 0);
 
     //截图状态
-    enum shotState{initShot,beginShot,onShot,finishShot};
+    enum shotState{initShot,beginShot,finishShot};
 
-    void setLabelId(int id){labelId=id;}
+    void setLabelId(WId id){labelId=id;}
 
-    int getLabelId(){return labelId;}
+    ~CTopLabel();
 
 signals:
     //发送关闭信号
-    void closeMe(int);
+    void meClosed(WId);
 
     //完成截屏信号
     void shotted();

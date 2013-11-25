@@ -10,10 +10,14 @@ AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent)
 {
     init();
+
 }
 
 void AboutDialog::init()
 {
+    //标题栏不要按钮
+    this->setWindowFlags(Qt::WindowTitleHint | Qt::CustomizeWindowHint);
+
     label_Logo=new QLabel;
     label_Logo->setMinimumSize(370,45);
 
@@ -47,7 +51,7 @@ void AboutDialog::init()
     this->setMaximumSize(370,254);
     setBackground();
 
-    connect(btn_confirm,SIGNAL(clicked()),this,SLOT(close()));
+    connect(btn_confirm,SIGNAL(clicked()),this,SLOT(hide()));
 
 
 }

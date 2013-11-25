@@ -2,8 +2,8 @@
 #define MAINWINDOW_H
 
 #include<QtWidgets>
-#include<QList>
-
+#include<QVector>
+#include"aboutdialog.h"
 #include"ctoplabel.h"
 
 class MainWindow : public QMainWindow
@@ -13,17 +13,22 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    struct IDStruct
+    {
+        WId id;
+        CTopLabel* pTopLabel;
+    };
+
 private:
     //托盘图标
-    QSystemTrayIcon* trayIcon;
-
     //注册热键
     void registerGlobalKey();
 
     //开始截图热键ID
     int hotkeyShotBgId;
 
-    QList<CTopLabel*> topLabelList;
+    QVector<IDStruct> topLabelList;
+
 
     //初始化托盘;
     void initTray();
@@ -33,6 +38,10 @@ private:
 
     //本地事件
     bool nativeEvent(const QByteArray &eventType, void *message, long *result);
+
+    AboutDialog* aboutDialog;
+
+    QSystemTrayIcon* trayIcon;
 
 
 
@@ -46,14 +55,15 @@ private slots:
 
 
 
-
-
 public slots:
     //关闭
-    void clearShot(int i);
+    void clearShot(WId i);
 
     //设置isShotting为false，允许再次截屏
     void allowShot();
+
+    //关于
+    void doAboutAction();
 
 
 signals:

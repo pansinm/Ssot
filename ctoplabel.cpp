@@ -1,9 +1,9 @@
 #include "ctoplabel.h"
 
-CTopLabel::CTopLabel(int id,QWidget *parent) :
+CTopLabel::CTopLabel(QWidget *parent) :
     QLabel(parent)
 {
-    setLabelId(id);
+    setLabelId(this->winId());
     setAutoFillBackground(true);
 
     //当前状态设置为初始化
@@ -28,8 +28,13 @@ CTopLabel::CTopLabel(int id,QWidget *parent) :
 
     //抓取屏幕
     fullScreenPixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
-}
 
+
+}
+CTopLabel::~CTopLabel()
+{
+
+}
 
 void CTopLabel::mousePressEvent(QMouseEvent *ev)
 {
@@ -41,7 +46,8 @@ void CTopLabel::mousePressEvent(QMouseEvent *ev)
         {
             //正在截图时，改变状态及beginPoint
             beginPoint=ev->pos();
-            currentState=beginShot;
+            qDebug()<<beginPoint.x();
+
         }
         else
         {
@@ -57,10 +63,38 @@ void CTopLabel::mouseMoveEvent(QMouseEvent *ev)
     {
         if(isShot)
         {
+            currentState=beginShot;
             //截屏拖动时
             //qDebug()<<"isShot";
             endPoint=ev->pos();
-            currentState=onShot;
+
+
+            //根据拖动位置，计算截图区域
+
+            //左上->右下
+            if(beginPoint.x()<endPoint.x()&&beginPoint.y()<endPoint.y())
+            {
+                shotRect=QRect(beginPoint,endPoint);
+            }
+
+            //左下->右上
+            else if(beginPoint.x()<endPoint.x()&&beginPoint.y()>endPoint.y())
+            {
+                shotRect=QRect(beginPoint.x(),endPoint.y(),endPoint.x()-beginPoint.x(),beginPoint.y()-endPoint.y());
+            }
+
+            //右上->左下
+            else if(beginPoint.x()>endPoint.x()&&beginPoint.y()<endPoint.y())
+            {
+                shotRect=QRect(endPoint.x(),beginPoint.y(),beginPoint.x()-endPoint.x(),endPoint.y()-beginPoint.y());
+            }
+
+            //右下->左上
+            else
+            {
+                shotRect=QRect(endPoint,beginPoint);
+            }
+
             update();
 
         }
@@ -77,29 +111,34 @@ void CTopLabel::mouseReleaseEvent(QMouseEvent *ev)
 {
     if(ev->button()==Qt::LeftButton)
     {
-
-
+        endPoint=ev->pos();
+        //qDebug()<<beginPoint.x()<<endPoint.x();
         if(isShot)
         {
-            endPoint=ev->pos();
-            update();
+            if(currentState==beginShot)
+            {
 
-            //截图区域图像
-            resultPixmap=fullScreenPixmap.copy(shotRect);
+                isShot=false;
 
-            //截图结果窗口
-            this->setGeometry(shotRect);
+                //改变状态
+                currentState=finishShot;
+
+                //截图区域图像
+                resultPixmap=fullScreenPixmap.copy(shotRect);
+
+                fullScreenPixmap.loadFromData(NULL);
+
+                this->repaint();
 
 
-            //结果复制到剪切板
-            QClipboard *clipboard=QApplication::clipboard();
-            clipboard->setPixmap(resultPixmap);
+                setGeometry(shotRect);
 
-            //改变状态
-            currentState=finishShot;
-            isShot=false;
+                emit shotted();
 
-            emit shotted();
+                //结果复制到剪切板
+                QClipboard *clipboard=QApplication::clipboard();
+                clipboard->setPixmap(resultPixmap);
+            }
 
         }
         else
@@ -119,62 +158,45 @@ void CTopLabel::mouseDoubleClickEvent(QMouseEvent *e)
     if(e->button()==Qt::LeftButton)
     {
         //关闭当前
-        emit closeMe(labelId);
+
+        emit meClosed(labelId);
+
     }
 }
 
 void CTopLabel::paintEvent(QPaintEvent *)
 {
+
     QPainter painter(this);
 
-    //设置画笔
-    painter.setPen(QPen(Qt::blue,1,Qt::SolidLine,Qt::FlatCap));
 
-    //根据拖动位置，计算截图区域
+    painter.setFont(QFont("simsun",20));
 
-    //左上->右下
-    if(beginPoint.x()<endPoint.x()&&beginPoint.y()<endPoint.y())
+
+
+    switch(currentState)
     {
-        shotRect=QRect(beginPoint,endPoint);
-    }
-
-    //左下->右上
-    else if(beginPoint.x()<endPoint.x()&&beginPoint.y()>endPoint.y())
-    {
-        shotRect=QRect(beginPoint.x(),endPoint.y(),endPoint.x()-beginPoint.x(),beginPoint.y()-endPoint.y());
-    }
-
-    //右上->左下
-    else if(beginPoint.x()>endPoint.x()&&beginPoint.y()<endPoint.y())
-    {
-        shotRect=QRect(endPoint.x(),beginPoint.y(),beginPoint.x()-endPoint.x(),endPoint.y()-beginPoint.y());
-    }
-
-    //右下->左上
-    else
-    {
-        shotRect=QRect(endPoint,beginPoint);
-    }
-
-    //绘制全屏
-    if(currentState!=finishShot)
-    {
-        painter.drawText(this->rect(),Qt::AlignHCenter,tr("拖动鼠标截图"));
+    case initShot:
         painter.drawPixmap(0,0,fullScreenPixmap);
-    }
+        painter.setPen(QPen(Qt::blue,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
+        break;
 
-    //正在拖动截屏区域
-    if(currentState==onShot)
-    {
+    case beginShot:
+        painter.drawPixmap(0,0,fullScreenPixmap);
+        painter.setPen(QPen(Qt::blue,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
         painter.drawRect(shotRect);
-    }
+        break;
 
-    //完成截屏
-    if(currentState==finishShot)
-    {
+    case finishShot:
         painter.drawPixmap(0,0,resultPixmap);
         painter.setPen(QPen(Qt::gray,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
         painter.drawRect(0,0,resultPixmap.size().width()-1,resultPixmap.size().height()-1);
+        //截图结果窗口
+
+
+        break;
     }
+
+
 
 }

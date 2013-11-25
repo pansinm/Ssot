@@ -11,8 +11,8 @@
 IDI_ICON1               ICON                    "icon.ico"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,9,0,0
- PRODUCTVERSION 0,9,0,0
+ FILEVERSION 1,0,1,0
+ PRODUCTVERSION 1,0,1,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -28,13 +28,13 @@ BEGIN
         BLOCK "080404b0"
         BEGIN
             VALUE "FileDescription", "Screenshots stored on top"
-            VALUE "FileVersion", "0, 9, 0, 0"
+            VALUE "FileVersion", "1,0,1, 0"
             VALUE "InternalName", "Ssot"
             VALUE "LegalCopyright", "free software by pansinm"
             VALUE "LegalTrademarks", "ÔÂÖ®ÓÄ"
             VALUE "OriginalFilename", "Ssot.exe"
             VALUE "ProductName", "½ØÍ¼ÖÃ¶¥"
-            VALUE "ProductVersion", "1, 2, 0, 0"
+            VALUE "ProductVersion", "1,0,1, 0"
         END
     END
     BLOCK "VarFileInfo"

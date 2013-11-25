@@ -1,14 +1,20 @@
 #include "mainwindow.h"
 
 #include<QDebug>
-
+#include"aboutdialog.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    topLabelList.clear();
     isShotting=false;
     registerGlobalKey();
     initTray();
+    aboutDialog =new AboutDialog;
     connect(this,SIGNAL(hotkeyShotBgPressed()),SLOT(hotkeyShotBgReceived()));
+    trayIcon->showMessage(tr("截图置顶 v1.0.1"),"程序已启动,按\"Shift+Z\"后拖动鼠标！");
+    trayIcon->setToolTip(tr("按\"Shift+Z\"后拖动鼠标"));
+
+
 }
 
 MainWindow::~MainWindow()
@@ -49,7 +55,6 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
                 qDebug("SHIFT+Z is Pressed");
 
             }
-
             return true;
 
          }
@@ -62,13 +67,20 @@ void MainWindow::hotkeyShotBgReceived()
 {
     if(!isShotting)
     {
+
         //如果正在截图，则不处理，否则进入截图状态，将list位置传给CTopLabel
 
-        CTopLabel* fullScreenLabel=new CTopLabel(topLabelList.count());
+        CTopLabel* fullScreenLabel=new CTopLabel;
 
-        topLabelList.append(fullScreenLabel);
+        IDStruct idStruct;
 
-        connect(fullScreenLabel,SIGNAL(closeMe(int)),this,SLOT(clearShot(int)));
+        idStruct.id=fullScreenLabel->winId();
+
+        idStruct.pTopLabel=fullScreenLabel;
+
+        topLabelList.append(idStruct);
+
+        connect(fullScreenLabel,SIGNAL(meClosed(WId)),this,SLOT(clearShot(WId)));
 
         connect(fullScreenLabel,SIGNAL(shotted()),this,SLOT(allowShot()));
 
@@ -86,7 +98,7 @@ void MainWindow::initTray()
 
     QMenu* trayMenu=new QMenu;
     QAction* exitAction=new QAction(tr("退出 (&X)"),trayMenu);
-    QAction* aboutAciton=new QAction(tr("&About"),trayMenu);
+    QAction* aboutAciton=new QAction(tr("关于 (&A)"),trayMenu);
     QAction* clearAciton=new QAction(tr("清除 (&C)"),trayMenu);
 
     trayMenu->addAction(clearAciton);
@@ -94,6 +106,7 @@ void MainWindow::initTray()
 
     trayMenu->addSeparator();
     trayMenu->addAction(aboutAciton);
+    connect(aboutAciton,SIGNAL(triggered()),this,SLOT(doAboutAction()));
 
     trayMenu->addAction(exitAction);
     connect(exitAction,SIGNAL(triggered()),this,SLOT(close()));
@@ -104,32 +117,51 @@ void MainWindow::initTray()
 
 void MainWindow::clearShots()
 {
-    //删除指针,清除所有截图
-    if(topLabelList.count()>0)
+    while(topLabelList.count()>0)
     {
-        for(int i=topLabelList.count()-1;i>=0;i--)
-        {
-            delete topLabelList.at(i);
-        }
-        topLabelList.clear();
+        delete topLabelList.first().pTopLabel;
+        topLabelList.first().pTopLabel=NULL;
+        topLabelList.removeFirst();
     }
+
 }
 
-void MainWindow::clearShot(int i)
+void MainWindow::clearShot(WId id)
 {
-    qDebug()<<"clearShot"<<i;
-    QList<CTopLabel*>::iterator iterator;
-    if(i>=0&&i<topLabelList.count())
+    qDebug()<<id;
+    if(!topLabelList.empty());
     {
-        iterator=topLabelList.begin();
-
-        delete(*(iterator+i));
-        topLabelList.erase(iterator+i);
-
+        for(int i=0;i<topLabelList.count();i++)
+        {
+            if(id==topLabelList[i].id)
+            {
+                delete topLabelList[i].pTopLabel;
+                qDebug()<<"is deleted!";
+                topLabelList[i].pTopLabel=NULL;
+            }
+        }
     }
+    allowShot();
 }
 
 void MainWindow::allowShot()
 {
     isShotting=false;
+}
+
+void MainWindow::doAboutAction()
+{
+    qDebug()<<"about";
+
+
+    aboutDialog->setText(":/icon/readme.txt",true);
+
+    aboutDialog->setWindowTitle(tr("关于截图置顶 v1.0.1"));
+
+    aboutDialog->setLogo(":/icon/resource/about-logo.png");
+
+    aboutDialog->setInfo("<table border=\"0\"><tr height=\"22\"><td width=270 valign=\"middle\" ><b>截图置顶 v1.0.1</b></td><td><a href=\"https://github.com/pansinm/Ssot/\">查看源代码</a></td></tr><tr height=\"22\"><td width=300 valign=\"middle\">by pansinm</td><td>pansinm@163.com</td></tr></table>");
+
+    aboutDialog->show();
+
 }
