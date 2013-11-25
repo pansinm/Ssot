@@ -1,0 +1,47 @@
+// Microsoft Visual C++ generated resource script.
+//
+//#include "resource.h"
+
+#if defined(UNDER_CE)
+#include <winbase.h>
+#else
+#include <winver.h>
+#endif
+
+IDI_ICON1               ICON                    "icon.ico"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 0,9,0,0
+ PRODUCTVERSION 0,9,0,0
+ FILEFLAGSMASK 0x17L
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x0L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "FileDescription", "Screenshots stored on top"
+            VALUE "FileVersion", "0, 9, 0, 0"
+            VALUE "InternalName", "Ssot"
+            VALUE "LegalCopyright", "free software by pansinm"
+            VALUE "LegalTrademarks", "ÔÂÖ®ÓÄ"
+            VALUE "OriginalFilename", "Ssot.exe"
+            VALUE "ProductName", "½ØÍ¼ÖÃ¶¥"
+            VALUE "ProductVersion", "1, 2, 0, 0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END
+
+
+
