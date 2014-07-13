@@ -1,9 +1,22 @@
+#include <QTransform>
+#include <QFileDialog>
+#include <QString>
+#include <QCursor>
 #include "ctoplabel.h"
 
 CTopLabel::CTopLabel(QWidget *parent) :
     QLabel(parent)
 {
+    controlBar=new ControlBar;
+
+    //设置后才能响应不按按键的mouseMoveEvent
+    this->setMouseTracking(true);
+
+    //鼠标初始形状设置为十字
+    this->setCursor(QCursor(Qt::CrossCursor));
+
     setLabelId(this->winId());
+
     setAutoFillBackground(true);
 
     //当前状态设置为初始化
@@ -29,11 +42,21 @@ CTopLabel::CTopLabel(QWidget *parent) :
     //抓取屏幕
     fullScreenPixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
 
+    //连接旋转信号
+    connect(controlBar->turnLeftBtn,SIGNAL(clicked()),this,SLOT(turnLeft()));
+
+    connect(controlBar->turnRightBtn,SIGNAL(clicked()),this,SLOT(turnRight()));
+
+    //连接关闭
+    connect(controlBar->closeBtn,SIGNAL(clicked()),this,SLOT(closeMe()));
+
+    //保存
+    connect(controlBar->saveBtn,SIGNAL(clicked()),this,SLOT(savePic()));
 
 }
 CTopLabel::~CTopLabel()
 {
-
+    controlBar->deleteLater();
 }
 
 void CTopLabel::mousePressEvent(QMouseEvent *ev)
@@ -56,9 +79,11 @@ void CTopLabel::mousePressEvent(QMouseEvent *ev)
         }
     }
 }
-
 void CTopLabel::mouseMoveEvent(QMouseEvent *ev)
 {
+
+        update();
+
     if(isPressed)
     {
         if(isShot)
@@ -100,8 +125,13 @@ void CTopLabel::mouseMoveEvent(QMouseEvent *ev)
         }
         else
         {
-            //窗口移动
-            move(ev->globalPos()-dragPosition);
+
+            //else{
+                //窗口移动
+                move(ev->globalPos()-dragPosition);
+
+                setContralBarPos();
+            //}
         }
 
     }
@@ -130,13 +160,19 @@ void CTopLabel::mouseReleaseEvent(QMouseEvent *ev)
 
                 this->repaint();
 
-
                 setGeometry(shotRect);
+
+                setContralBarPos();
+
+                controlBar->show();
 
                 emit shotted();
 
+                this->setCursor(QCursor(Qt::SizeAllCursor));
+
                 //结果复制到剪切板
                 QClipboard *clipboard=QApplication::clipboard();
+
                 clipboard->setPixmap(resultPixmap);
             }
 
@@ -169,34 +205,113 @@ void CTopLabel::paintEvent(QPaintEvent *)
 
     QPainter painter(this);
 
-
-    painter.setFont(QFont("simsun",20));
-
-
+    painter.setFont(QFont("arial",12));
 
     switch(currentState)
     {
     case initShot:
+    {
         painter.drawPixmap(0,0,fullScreenPixmap);
         painter.setPen(QPen(Qt::blue,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
+        QPoint pos=QCursor::pos();
+        QString s=QString("(x:%1,y:%2)").arg(pos.x()).arg(pos.y());
+        painter.setPen(QPen(Qt::red,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
+        painter.drawText(pos,s);
         break;
-
+    }
     case beginShot:
+    {
         painter.drawPixmap(0,0,fullScreenPixmap);
         painter.setPen(QPen(Qt::blue,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
         painter.drawRect(shotRect);
-        break;
-
-    case finishShot:
-        painter.drawPixmap(0,0,resultPixmap);
-        painter.setPen(QPen(Qt::gray,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
-        painter.drawRect(0,0,resultPixmap.size().width()-1,resultPixmap.size().height()-1);
-        //截图结果窗口
-
-
+        QPoint pos=QCursor::pos();
+        QString s=QString("(W:%1,H:%2)").arg(shotRect.width()).arg(shotRect.height());
+        painter.setPen(QPen(Qt::red,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
+        painter.drawText(pos,s);
         break;
     }
 
+    case finishShot:
+        painter.drawPixmap(0,0,resultPixmap);
+        painter.setPen(QPen(Qt::blue,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
+        painter.drawRect(0,0,resultPixmap.size().width()-1,resultPixmap.size().height()-1);
+        //截图结果窗口
 
+        break;
 
+    }
+
+}
+
+//键盘事件
+void CTopLabel::keyPressEvent(QKeyEvent *ev){
+    if(ev->key()==Qt::Key_Escape){
+        closeMe();
+    }
+}
+
+//设置控制条位置
+void CTopLabel::setContralBarPos(){
+
+    int controlBarX=this->geometry().right()-controlBar->width();
+
+    int controlBarY=this->geometry().bottom()+5;
+
+    controlBar->setGeometry(controlBarX,controlBarY,controlBar->width(),controlBar->height());
+}
+
+//逆时针旋转
+void CTopLabel::turnLeft(){
+
+    QTransform leftTransform;
+
+    leftTransform.rotate(-90);
+
+    resultPixmap = resultPixmap.transformed(leftTransform);
+
+    int x = this->geometry().right() - resultPixmap.width()+1;
+
+    int y = this->geometry().bottom() - resultPixmap.height()+1;
+
+    this->setGeometry(x,y,resultPixmap.width(),resultPixmap.height());
+
+    this->setContralBarPos();
+
+    this->repaint();
+}
+
+//顺时针旋转
+void CTopLabel::turnRight(){
+
+    qDebug()<<"turnRight";
+
+    QTransform rightTransform;
+
+    rightTransform.rotate(90);
+
+    resultPixmap = resultPixmap.transformed(rightTransform);
+
+    int x = this->geometry().right() - resultPixmap.width()+1;
+
+    int y = this->geometry().bottom() - resultPixmap.height()+1;
+
+    this->setGeometry(x,y,resultPixmap.width(),resultPixmap.height());
+
+    this->setContralBarPos();
+
+    this->repaint();
+}
+
+void CTopLabel::savePic(){
+    QString fileName = QFileDialog::getSaveFileName(this, tr("保存"),
+                               "%DESKTOP%/untitled.png",
+                               tr("Images (*.png *.xpm *.jpg)"));
+
+    resultPixmap.save(fileName);
+
+}
+
+//关闭
+void CTopLabel::closeMe(){
+    emit meClosed(labelId);
 }

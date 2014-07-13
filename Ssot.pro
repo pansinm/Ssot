@@ -15,11 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     ctoplabel.cpp \
-    aboutdialog.cpp
+    aboutdialog.cpp \
+    controlbar.cpp
 
 HEADERS  += mainwindow.h \
     ctoplabel.h \
-    aboutdialog.h
+    aboutdialog.h \
+    controlbar.h
 
 RESOURCES += \
     resource.qrc

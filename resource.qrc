@@ -3,5 +3,9 @@
         <file>resource/icon.png</file>
         <file>readme.txt</file>
         <file>resource/about-logo.png</file>
+        <file>resource/save.png</file>
+        <file>resource/turn-left.png</file>
+        <file>resource/turn-right.png</file>
+        <file>resource/close.png</file>
     </qresource>
 </RCC>

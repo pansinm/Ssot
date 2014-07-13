@@ -65,6 +65,8 @@ public slots:
     //关于
     void doAboutAction();
 
+    void quitApp();
+
 
 signals:
 

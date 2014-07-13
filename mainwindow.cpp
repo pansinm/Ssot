@@ -5,13 +5,14 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+
     topLabelList.clear();
     isShotting=false;
     registerGlobalKey();
     initTray();
     aboutDialog =new AboutDialog;
     connect(this,SIGNAL(hotkeyShotBgPressed()),SLOT(hotkeyShotBgReceived()));
-    trayIcon->showMessage(tr("截图置顶 v1.0.1"),"程序已启动,按\"Shift+Z\"后拖动鼠标！");
+    trayIcon->showMessage(tr("截图置顶 v1.2.0"),"程序已启动,按\"Shift+Z\"后拖动鼠标！");
     trayIcon->setToolTip(tr("按\"Shift+Z\"后拖动鼠标"));
 
 
@@ -19,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+
     if(UnregisterHotKey(HWND(this->winId()), hotkeyShotBgId))
     {
         qDebug("SHIFT+Z IS UNREGISTED");
@@ -31,6 +33,7 @@ MainWindow::~MainWindow()
 void MainWindow::registerGlobalKey()
 {
     hotkeyShotBgId =GlobalAddAtom(L"hotkeyShotBg") - 0xC000;
+
     if(RegisterHotKey((HWND(this->winId())), hotkeyShotBgId,MOD_SHIFT,0x5A))
     {
         qDebug("SHIFT+Z IS REGISTER");
@@ -94,25 +97,37 @@ void MainWindow::hotkeyShotBgReceived()
 void MainWindow::initTray()
 {
     trayIcon=new QSystemTrayIcon(this);
+
     trayIcon->setIcon(QIcon(":/icon/resource/icon.png"));
 
     QMenu* trayMenu=new QMenu;
+
     QAction* exitAction=new QAction(tr("退出 (&X)"),trayMenu);
     QAction* aboutAciton=new QAction(tr("关于 (&A)"),trayMenu);
-    QAction* clearAciton=new QAction(tr("清除 (&C)"),trayMenu);
+    QAction* clearAciton=new QAction(tr("清除截图 (&C)"),trayMenu);
 
     trayMenu->addAction(clearAciton);
+
     connect(clearAciton,SIGNAL(triggered()),this,SLOT(clearShots()));
 
     trayMenu->addSeparator();
+
     trayMenu->addAction(aboutAciton);
+
     connect(aboutAciton,SIGNAL(triggered()),this,SLOT(doAboutAction()));
 
     trayMenu->addAction(exitAction);
-    connect(exitAction,SIGNAL(triggered()),this,SLOT(close()));
+
+    connect(exitAction,SIGNAL(triggered()),this,SLOT(quitApp()));
 
     trayIcon->setContextMenu(trayMenu);
+
     trayIcon->show();
+}
+
+void MainWindow::quitApp(){
+
+     QApplication::quit();
 }
 
 void MainWindow::clearShots()
@@ -120,7 +135,9 @@ void MainWindow::clearShots()
     while(topLabelList.count()>0)
     {
         delete topLabelList.first().pTopLabel;
+
         topLabelList.first().pTopLabel=NULL;
+
         topLabelList.removeFirst();
     }
 
@@ -129,7 +146,7 @@ void MainWindow::clearShots()
 void MainWindow::clearShot(WId id)
 {
     qDebug()<<id;
-    if(!topLabelList.empty());
+    if(!topLabelList.empty())
     {
         for(int i=0;i<topLabelList.count();i++)
         {
@@ -156,11 +173,11 @@ void MainWindow::doAboutAction()
 
     aboutDialog->setText(":/icon/readme.txt",true);
 
-    aboutDialog->setWindowTitle(tr("关于截图置顶 v1.0.1"));
+    aboutDialog->setWindowTitle(tr("关于Ssot v1.2.0"));
 
     aboutDialog->setLogo(":/icon/resource/about-logo.png");
 
-    aboutDialog->setInfo("<table border=\"0\"><tr height=\"22\"><td width=270 valign=\"middle\" ><b>截图置顶 v1.0.1</b></td><td><a href=\"https://github.com/pansinm/Ssot/\">查看源代码</a></td></tr><tr height=\"22\"><td width=300 valign=\"middle\">by pansinm</td><td>pansinm@163.com</td></tr></table>");
+    aboutDialog->setInfo("<table border=\"0\"><tr height=\"22\"><td width=270 valign=\"middle\" ><b>Ssot v1.2.0</b></td><td><a href=\"https://github.com/pansinm/Ssot/\">查看源代码</a></td></tr><tr height=\"22\"><td width=300 valign=\"middle\">by pansinm</td><td>pansinm@163.com</td></tr></table>");
 
     aboutDialog->show();
 

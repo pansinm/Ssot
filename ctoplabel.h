@@ -2,7 +2,8 @@
 #define CTOPLABEL_H
 
 #include <QtWidgets>
-
+#include <QCursor>
+#include "controlbar.h"
 class CTopLabel : public QLabel
 {
     Q_OBJECT
@@ -23,9 +24,27 @@ signals:
     //完成截屏信号
     void shotted();
 
+private slots:
+    //逆时针旋转
+    void turnLeft();
 
+    //顺时针旋转
+    void turnRight();
+
+    //保存图像
+    void savePic();
+
+    //关闭
+    void closeMe();
 
 private:
+
+   ControlBar* controlBar;
+
+   //调整控制条的位置
+   void setContralBarPos();
+
+
     int labelId;
 
     //全屏Pixmap
@@ -55,13 +74,13 @@ private:
     //拖动点
     QPoint dragPosition;
 
-
     void paintEvent(QPaintEvent *);
 
     void mousePressEvent(QMouseEvent *ev);
     void mouseMoveEvent(QMouseEvent *ev);
     void mouseReleaseEvent(QMouseEvent *ev);
     void mouseDoubleClickEvent(QMouseEvent *);
+    void keyPressEvent(QKeyEvent *ev);
 
 
 };

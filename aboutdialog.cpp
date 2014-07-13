@@ -65,6 +65,7 @@ void AboutDialog::setLogo(const QString filename)
 void AboutDialog::setInfo(const QString info)
 {
     label_Info->setText(info);
+
     connect(label_Info,SIGNAL(linkActivated(QString)),this,SLOT(openUrl(QString)));
 }
 
