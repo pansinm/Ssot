@@ -34,8 +34,6 @@ private slots:
     //保存图像
     void savePic();
 
-    //关闭
-    void closeMe();
 
 private:
 

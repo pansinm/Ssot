@@ -83,7 +83,7 @@ void MainWindow::hotkeyShotBgReceived()
 
         topLabelList.append(idStruct);
 
-        connect(fullScreenLabel,SIGNAL(meClosed(WId)),this,SLOT(clearShot(WId)));
+        //connect(fullScreenLabel,SIGNAL(meClosed(WId)),this,SLOT(clearShot(WId)));
 
         connect(fullScreenLabel,SIGNAL(shotted()),this,SLOT(allowShot()));
 
@@ -126,7 +126,7 @@ void MainWindow::initTray()
 }
 
 void MainWindow::quitApp(){
-
+     trayIcon->hide();
      QApplication::quit();
 }
 
@@ -134,7 +134,7 @@ void MainWindow::clearShots()
 {
     while(topLabelList.count()>0)
     {
-        delete topLabelList.first().pTopLabel;
+        topLabelList.first().pTopLabel->deleteLater();
 
         topLabelList.first().pTopLabel=NULL;
 
@@ -143,23 +143,6 @@ void MainWindow::clearShots()
 
 }
 
-void MainWindow::clearShot(WId id)
-{
-    qDebug()<<id;
-    if(!topLabelList.empty())
-    {
-        for(int i=0;i<topLabelList.count();i++)
-        {
-            if(id==topLabelList[i].id)
-            {
-                delete topLabelList[i].pTopLabel;
-                qDebug()<<"is deleted!";
-                topLabelList[i].pTopLabel=NULL;
-            }
-        }
-    }
-    allowShot();
-}
 
 void MainWindow::allowShot()
 {

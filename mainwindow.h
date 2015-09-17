@@ -56,8 +56,6 @@ private slots:
 
 
 public slots:
-    //关闭
-    void clearShot(WId i);
 
     //设置isShotting为false，允许再次截屏
     void allowShot();

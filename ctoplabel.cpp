@@ -9,7 +9,7 @@ CTopLabel::CTopLabel(QWidget *parent) :
 {
     controlBar=new ControlBar;
 
-    //设置后才能响应不按按键的mouseMoveEvent
+    //设置后才能响应不按按键的mouseMoveEventX
     this->setMouseTracking(true);
 
     //鼠标初始形状设置为十字
@@ -43,15 +43,15 @@ CTopLabel::CTopLabel(QWidget *parent) :
     fullScreenPixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
 
     //连接旋转信号
-    connect(controlBar->turnLeftBtn,SIGNAL(clicked()),this,SLOT(turnLeft()));
+    connect(controlBar,SIGNAL(toTurnLeft()),this,SLOT(turnLeft()));
 
-    connect(controlBar->turnRightBtn,SIGNAL(clicked()),this,SLOT(turnRight()));
-
-    //连接关闭
-    connect(controlBar->closeBtn,SIGNAL(clicked()),this,SLOT(closeMe()));
+    connect(controlBar,SIGNAL(toTurnRight()),this,SLOT(turnRight()));
 
     //保存
-    connect(controlBar->saveBtn,SIGNAL(clicked()),this,SLOT(savePic()));
+    connect(controlBar,SIGNAL(toSave()),this,SLOT(savePic()));
+
+    //连接关闭
+    connect(controlBar,SIGNAL(toClose()),this,SLOT(deleteLater()));
 
 }
 CTopLabel::~CTopLabel()
@@ -76,13 +76,14 @@ void CTopLabel::mousePressEvent(QMouseEvent *ev)
         {
             //截图完毕时
             dragPosition=ev->globalPos()-this->pos();
+            controlBar->setFocus();
         }
     }
 }
 void CTopLabel::mouseMoveEvent(QMouseEvent *ev)
 {
 
-        update();
+    update();
 
     if(isPressed)
     {
@@ -194,9 +195,7 @@ void CTopLabel::mouseDoubleClickEvent(QMouseEvent *e)
     if(e->button()==Qt::LeftButton)
     {
         //关闭当前
-
-        emit meClosed(labelId);
-
+        this->deleteLater();
     }
 }
 
@@ -246,7 +245,7 @@ void CTopLabel::paintEvent(QPaintEvent *)
 //键盘事件
 void CTopLabel::keyPressEvent(QKeyEvent *ev){
     if(ev->key()==Qt::Key_Escape){
-        closeMe();
+        this->deleteLater();
     }
 }
 
@@ -311,7 +310,4 @@ void CTopLabel::savePic(){
 
 }
 
-//关闭
-void CTopLabel::closeMe(){
-    emit meClosed(labelId);
-}
+
