@@ -1,4 +1,4 @@
-#ifndef MAINWINDOW_H
+﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include<QtWidgets>
@@ -13,11 +13,6 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    struct IDStruct
-    {
-        WId id;
-        CTopLabel* pTopLabel;
-    };
 
 private:
     //托盘图标
@@ -27,7 +22,7 @@ private:
     //开始截图热键ID
     int hotkeyShotBgId;
 
-    QVector<IDStruct> topLabelList;
+    QVector<CTopLabel*> topLabelList;
 
 
     //初始化托盘;
@@ -65,6 +60,7 @@ public slots:
 
     void quitApp();
 
+    void removeLabel(QObject* label);
 
 signals:
 

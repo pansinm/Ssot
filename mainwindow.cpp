@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 
 #include<QDebug>
 #include"aboutdialog.h"
@@ -75,14 +75,9 @@ void MainWindow::hotkeyShotBgReceived()
 
         CTopLabel* fullScreenLabel=new CTopLabel;
 
-        IDStruct idStruct;
+        topLabelList.append(fullScreenLabel);
 
-        idStruct.id=fullScreenLabel->winId();
-
-        idStruct.pTopLabel=fullScreenLabel;
-
-        topLabelList.append(idStruct);
-
+        connect(fullScreenLabel, SIGNAL(destroyed(QObject*)), SLOT(removeLabel(QObject*)));
         //connect(fullScreenLabel,SIGNAL(meClosed(WId)),this,SLOT(clearShot(WId)));
 
         connect(fullScreenLabel,SIGNAL(shotted()),this,SLOT(allowShot()));
@@ -130,13 +125,18 @@ void MainWindow::quitApp(){
      QApplication::quit();
 }
 
+void MainWindow::removeLabel(QObject *label)
+{
+   topLabelList.removeAll(static_cast<CTopLabel*>(label));
+}
+
 void MainWindow::clearShots()
 {
     while(topLabelList.count()>0)
     {
-        topLabelList.first().pTopLabel->deleteLater();
-
-        topLabelList.first().pTopLabel=NULL;
+        if(topLabelList.first()){
+            topLabelList.first()->deleteLater();
+        }
 
         topLabelList.removeFirst();
     }
