@@ -12,8 +12,8 @@ MainWindow::MainWindow(QWidget *parent)
     initTray();
     aboutDialog =new AboutDialog;
     connect(this,SIGNAL(hotkeyShotBgPressed()),SLOT(hotkeyShotBgReceived()));
-    trayIcon->showMessage(tr("截图置顶 v1.2.0"),"程序已启动,按\"Shift+Z\"后拖动鼠标！");
-    trayIcon->setToolTip(tr("按\"Shift+Z\"后拖动鼠标"));
+    trayIcon->showMessage(tr("截图置顶 v1.2.0"),"程序已启动,按\"SHIFT+ALT+Z\"后拖动鼠标！");
+    trayIcon->setToolTip(tr("按\"SHIFT+ALT+Z\"后拖动鼠标"));
 
 
 }
@@ -23,7 +23,7 @@ MainWindow::~MainWindow()
 
     if(UnregisterHotKey(HWND(this->winId()), hotkeyShotBgId))
     {
-        qDebug("SHIFT+Z IS UNREGISTED");
+        qDebug("SHIFT+ALT+Z IS UNREGISTED");
     }
 
     clearShots();
@@ -85,7 +85,7 @@ void MainWindow::hotkeyShotBgReceived()
         fullScreenLabel->showFullScreen();
     }
 
-    isShotting=true;
+    isShotting = true;
 
 }
 

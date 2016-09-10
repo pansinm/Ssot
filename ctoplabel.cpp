@@ -1,4 +1,4 @@
-#include <QTransform>
+﻿#include <QTransform>
 #include <QFileDialog>
 #include <QString>
 #include <QCursor>
@@ -126,13 +126,10 @@ void CTopLabel::mouseMoveEvent(QMouseEvent *ev)
         }
         else
         {
+            //窗口移动
+            move(ev->globalPos()-dragPosition);
 
-            //else{
-                //窗口移动
-                move(ev->globalPos()-dragPosition);
-
-                setContralBarPos();
-            //}
+            setContralBarPos();
         }
 
     }
@@ -143,19 +140,25 @@ void CTopLabel::mouseReleaseEvent(QMouseEvent *ev)
     if(ev->button()==Qt::LeftButton)
     {
         endPoint=ev->pos();
-        //qDebug()<<beginPoint.x()<<endPoint.x();
+
         if(isShot)
         {
             if(currentState==beginShot)
             {
 
-                isShot=false;
+                isShot = false;
 
                 //改变状态
-                currentState=finishShot;
+                currentState = finishShot;
 
                 //截图区域图像
-                resultPixmap=fullScreenPixmap.copy(shotRect);
+                resultPixmap = fullScreenPixmap.copy(shotRect);
+
+                //结果复制到剪切板
+                QClipboard *clipboard=QApplication::clipboard();
+
+                clipboard->clear(QClipboard::Clipboard);
+                clipboard->setPixmap(resultPixmap, QClipboard::Clipboard);
 
                 fullScreenPixmap.loadFromData(NULL);
 
@@ -171,10 +174,6 @@ void CTopLabel::mouseReleaseEvent(QMouseEvent *ev)
 
                 this->setCursor(QCursor(Qt::SizeAllCursor));
 
-                //结果复制到剪切板
-                QClipboard *clipboard=QApplication::clipboard();
-
-                clipboard->setPixmap(resultPixmap);
             }
 
         }
@@ -231,10 +230,10 @@ void CTopLabel::paintEvent(QPaintEvent *)
     }
 
     case finishShot:
+        //绘制结果窗口
         painter.drawPixmap(0,0,resultPixmap);
         painter.setPen(QPen(Qt::blue,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
         painter.drawRect(0,0,resultPixmap.size().width()-1,resultPixmap.size().height()-1);
-        //截图结果窗口
 
         break;
 
@@ -245,6 +244,7 @@ void CTopLabel::paintEvent(QPaintEvent *)
 //键盘事件
 void CTopLabel::keyPressEvent(QKeyEvent *ev){
     if(ev->key()==Qt::Key_Escape){
+        emit shotted();
         this->deleteLater();
     }
 }
