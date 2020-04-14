@@ -52,7 +52,7 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
             UINT uVirtKey = (UINT) HIWORD(msg->lParam);     // virtual-key code
 
            // qDebug("This is HotKey!");
-            if(fuModifiers==MOD_SHIFT|MOD_ALT && uVirtKey==0x5A)
+            if(fuModifiers==(MOD_SHIFT|MOD_ALT) && uVirtKey==0x5A)
             {
                 emit hotkeyShotBgPressed();
                 qDebug("SHIFT+ALT+Z is Pressed");

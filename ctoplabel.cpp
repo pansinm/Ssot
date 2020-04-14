@@ -2,12 +2,13 @@
 #include <QFileDialog>
 #include <QString>
 #include <QCursor>
+#include<QScreen>
 #include "ctoplabel.h"
 
 CTopLabel::CTopLabel(QWidget *parent) :
     QLabel(parent)
 {
-    controlBar=new ControlBar;
+    controlBar = new ControlBar(this);
 
     //设置后才能响应不按按键的mouseMoveEventX
     this->setMouseTracking(true);
@@ -25,6 +26,15 @@ CTopLabel::CTopLabel(QWidget *parent) :
     //设置为正在截图
     isShot=true;
 
+    //设置无边框，任务栏无图标，顶置
+    setWindowFlags(Qt::FramelessWindowHint|Qt::Tool|Qt::WindowStaysOnTopHint);
+
+    QPoint globalCursorPos = QCursor::pos();
+    QScreen* screen = QGuiApplication::screenAt(globalCursorPos);
+
+    //抓取屏幕
+    fullScreenPixmap = screen->grabWindow(0);
+
     //初始化
     beginPoint=QPoint(0,0);
     endPoint=QPoint(0,0);
@@ -36,11 +46,8 @@ CTopLabel::CTopLabel(QWidget *parent) :
     //初始化窗口拖动点
     dragPosition=QPoint(-1,-1);
 
-    //设置无边框，任务栏无图标，顶置
-    setWindowFlags(Qt::FramelessWindowHint|Qt::Tool|Qt::WindowStaysOnTopHint);
 
-    //抓取屏幕
-    fullScreenPixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
+
 
     //连接旋转信号
     connect(controlBar,SIGNAL(toTurnLeft()),this,SLOT(turnLeft()));
@@ -84,6 +91,7 @@ void CTopLabel::mouseMoveEvent(QMouseEvent *ev)
 {
 
     update();
+    qDebug() << ev;
 
     if(isPressed)
     {
@@ -200,7 +208,6 @@ void CTopLabel::mouseDoubleClickEvent(QMouseEvent *e)
 
 void CTopLabel::paintEvent(QPaintEvent *)
 {
-
     QPainter painter(this);
 
     painter.setFont(QFont("arial",12));
@@ -231,12 +238,10 @@ void CTopLabel::paintEvent(QPaintEvent *)
 
     case finishShot:
         //绘制结果窗口
-        painter.drawPixmap(0,0,resultPixmap);
+        painter.drawPixmap(0, 0, this->width(), this->height(), resultPixmap);
         painter.setPen(QPen(Qt::blue,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
-        painter.drawRect(0,0,resultPixmap.size().width()-1,resultPixmap.size().height()-1);
-
+        painter.drawRect(0, 0, this->width() - 1, this->height() - 1);
         break;
-
     }
 
 }
@@ -303,8 +308,8 @@ void CTopLabel::turnRight(){
 
 void CTopLabel::savePic(){
     QString fileName = QFileDialog::getSaveFileName(this, tr("保存"),
-                               "%DESKTOP%/untitled.png",
-                               tr("Images (*.png *.xpm *.jpg)"));
+                                                    "%DESKTOP%/untitled.png",
+                                                    tr("Images (*.png *.xpm *.jpg)"));
 
     resultPixmap.save(fileName);
 
