@@ -172,7 +172,8 @@ void CTopLabel::mouseReleaseEvent(QMouseEvent *ev)
 
                 this->repaint();
 
-                setGeometry(shotRect);
+                QPoint point = this->screen()->geometry().topLeft() + shotRect.topLeft();
+                setGeometry(point.x(), point.y(), shotRect.width(), shotRect.height());
 
                 setContralBarPos();
 
