@@ -79,8 +79,7 @@ private:
     void mouseReleaseEvent(QMouseEvent *ev);
     void mouseDoubleClickEvent(QMouseEvent *);
     void keyPressEvent(QKeyEvent *ev);
-
-
+    void leaveEvent(QEvent *event);
 };
 
 #endif // CTOPLABEL_H

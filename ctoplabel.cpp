@@ -91,7 +91,6 @@ void CTopLabel::mouseMoveEvent(QMouseEvent *ev)
 {
 
     update();
-    qDebug() << ev;
 
     if(isPressed)
     {
@@ -160,7 +159,10 @@ void CTopLabel::mouseReleaseEvent(QMouseEvent *ev)
                 currentState = finishShot;
 
                 //截图区域图像
-                resultPixmap = fullScreenPixmap.copy(shotRect);
+                resultPixmap = fullScreenPixmap.copy(shotRect.x() * this->devicePixelRatio(),
+                                                     shotRect.y() * this->devicePixelRatio(),
+                                                     shotRect.width() * this->devicePixelRatio(),
+                                                     shotRect.height() * this->devicePixelRatio());
 
                 //结果复制到剪切板
                 QClipboard *clipboard=QApplication::clipboard();
@@ -252,6 +254,21 @@ void CTopLabel::keyPressEvent(QKeyEvent *ev){
     if(ev->key()==Qt::Key_Escape){
         emit shotted();
         this->deleteLater();
+    }
+}
+
+void CTopLabel::leaveEvent(QEvent *event) {
+    if (this->currentState == initShot) {
+        qDebug() << "receive leave event" << event;
+        QTimer::singleShot(100, [this]{
+            QPoint globalCursorPos = QCursor::pos();
+            QScreen* screen = QGuiApplication::screenAt(globalCursorPos);
+            this->fullScreenPixmap = screen->grabWindow(0);
+            this->setGeometry(screen->geometry().x(),
+                              screen->geometry().y(),
+                              screen->geometry().width() / screen->devicePixelRatio(),
+                              screen->geometry().height() / screen->devicePixelRatio());
+        });
     }
 }
 
