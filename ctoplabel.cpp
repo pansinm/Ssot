@@ -214,17 +214,17 @@ void CTopLabel::paintEvent(QPaintEvent *)
     QPainter painter(this);
 
     painter.setFont(QFont("arial",12));
-
+    QPoint pos=QCursor::pos();
+    pointColor = fullScreenPixmap.toImage().pixelColor((pos - this->geometry().topLeft()) / this->devicePixelRatio());
     switch(currentState)
     {
     case initShot:
     {
         painter.drawPixmap(0,0,fullScreenPixmap);
         painter.setPen(QPen(Qt::blue,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
-        QPoint pos=QCursor::pos();
-        QString s=QString("(x:%1,y:%2)").arg(pos.x()).arg(pos.y());
+        QString s=QString("(x:%1,y:%2,%3)").arg(pos.x()).arg(pos.y()).arg(pointColor.name());
         painter.setPen(QPen(Qt::red,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
-        painter.drawText(pos,s);
+        painter.drawText(pos - this->geometry().topLeft(),s);
         break;
     }
     case beginShot:
@@ -232,10 +232,9 @@ void CTopLabel::paintEvent(QPaintEvent *)
         painter.drawPixmap(0,0,fullScreenPixmap);
         painter.setPen(QPen(Qt::blue,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
         painter.drawRect(shotRect);
-        QPoint pos=QCursor::pos();
-        QString s=QString("(W:%1,H:%2)").arg(shotRect.width()).arg(shotRect.height());
+        QString s=QString("(W:%1,H:%2,%3)").arg(shotRect.width()).arg(shotRect.height()).arg(pointColor.name());
         painter.setPen(QPen(Qt::red,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
-        painter.drawText(pos,s);
+        painter.drawText(pos - this->geometry().topLeft(),s);
         break;
     }
 
@@ -254,6 +253,11 @@ void CTopLabel::keyPressEvent(QKeyEvent *ev){
     if(ev->key()==Qt::Key_Escape){
         emit shotted();
         this->deleteLater();
+    }
+
+    if (ev->key() == Qt::Key_C) {
+        QClipboard *clipboard=QApplication::clipboard();
+        clipboard->setText(pointColor.name());
     }
 }
 

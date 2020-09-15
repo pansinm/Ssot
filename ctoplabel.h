@@ -72,6 +72,9 @@ private:
     //拖动点
     QPoint dragPosition;
 
+    // 指针当前位置的颜色
+    QColor pointColor;
+
     void paintEvent(QPaintEvent *);
 
     void mousePressEvent(QMouseEvent *ev);
