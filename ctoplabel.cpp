@@ -230,6 +230,9 @@ void CTopLabel::paintEvent(QPaintEvent *)
                 .arg(pointColor.name());
         painter.setPen(QPen(Qt::red,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
         painter.drawText(pos - this->geometry().topLeft(),s);
+        painter.setPen(QPen(Qt::black,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
+        painter.drawRect(pos.x() + 24, pos.y() - 24, 12, 12);
+        painter.fillRect(pos.x() + 24, pos.y() - 24, 12, 12, pointColor);
         break;
     }
     case beginShot:
@@ -266,6 +269,8 @@ void CTopLabel::keyPressEvent(QKeyEvent *ev){
     if (ev->key() == Qt::Key_C) {
         QClipboard *clipboard=QApplication::clipboard();
         clipboard->setText(pointColor.name());
+        emit shotted();
+        this->deleteLater();
     }
 }
 
