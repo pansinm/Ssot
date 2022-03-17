@@ -46,9 +46,6 @@ CTopLabel::CTopLabel(QWidget *parent) :
     //初始化窗口拖动点
     dragPosition=QPoint(-1,-1);
 
-
-
-
     //连接旋转信号
     connect(controlBar,SIGNAL(toTurnLeft()),this,SLOT(turnLeft()));
 
@@ -215,14 +212,22 @@ void CTopLabel::paintEvent(QPaintEvent *)
 
     painter.setFont(QFont("arial",12));
     QPoint pos=QCursor::pos();
-    pointColor = fullScreenPixmap.toImage().pixelColor((pos - this->geometry().topLeft()) / this->devicePixelRatio());
+
+    pointColor = fullScreenPixmap
+            .toImage()
+            .pixelColor(
+                (pos - this->geometry().topLeft()) * this->devicePixelRatio()
+             );
     switch(currentState)
     {
     case initShot:
     {
         painter.drawPixmap(0,0,fullScreenPixmap);
         painter.setPen(QPen(Qt::blue,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
-        QString s=QString("(x:%1,y:%2,%3)").arg(pos.x()).arg(pos.y()).arg(pointColor.name());
+        QString s=QString("(x:%1,y:%2,%3)")
+                .arg(pos.x())
+                .arg(pos.y())
+                .arg(pointColor.name());
         painter.setPen(QPen(Qt::red,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
         painter.drawText(pos - this->geometry().topLeft(),s);
         break;
@@ -232,7 +237,10 @@ void CTopLabel::paintEvent(QPaintEvent *)
         painter.drawPixmap(0,0,fullScreenPixmap);
         painter.setPen(QPen(Qt::blue,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
         painter.drawRect(shotRect);
-        QString s=QString("(W:%1,H:%2,%3)").arg(shotRect.width()).arg(shotRect.height()).arg(pointColor.name());
+        QString s=QString("(W:%1,H:%2,%3)")
+                .arg(shotRect.width())
+                .arg(shotRect.height())
+                .arg(pointColor.name());
         painter.setPen(QPen(Qt::red,1,Qt::SolidLine,Qt::FlatCap));//设置画笔
         painter.drawText(pos - this->geometry().topLeft(),s);
         break;
